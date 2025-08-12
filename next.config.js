@@ -16,6 +16,9 @@ const nextConfig = {
   // Улучшить стабильность разработки
   experimental: {
     optimizeCss: true,
+    // Отключаем автоматическую оптимизацию
+    workerThreads: false,
+    cpus: 1,
   },
   // Игнорировать ошибки в консоли браузера от расширений
   webpack: (config, { dev, isServer }) => {
@@ -26,6 +29,16 @@ const nextConfig = {
         /chrome-extension/,
       ];
     }
+    
+    // Отключаем оптимизации, которые могут вызывать проблемы
+    if (!dev) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: false,
+        runtimeChunk: false,
+      };
+    }
+    
     return config;
   },
 }
