@@ -5,9 +5,11 @@ export default function SettingsPage() {
   return (
     <PageLayout 
       title="Настройки"
-      subtitle="Настройте приложение под себя"
     >
       <Settings />
     </PageLayout>
   );
-} 
+}
+
+// Отключаем статическую генерацию для страницы с Telegram функциональностью
+export const dynamic = 'force-dynamic'; 

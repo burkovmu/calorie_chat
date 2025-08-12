@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useTelegram } from '@/hooks/useTelegram';
 
 export default function Settings() {
   const [dailyGoal, setDailyGoal] = useState(2000);
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [language, setLanguage] = useState('ru');
+  const { user, isTelegramApp, getUserName } = useTelegram();
 
   const handleSave = () => {
     // Здесь будет логика сохранения настроек
@@ -19,6 +21,44 @@ export default function Settings() {
       <div className="text-center mb-6">
         <p className="text-gray-600 font-medium">Настройте приложение под свои потребности</p>
       </div>
+
+      {/* Информация о Telegram пользователе */}
+      {isTelegramApp() && user && (
+        <div className="glass-effect rounded-2xl shadow-lg border border-gray-200 p-6 mb-6 animate-slide-up">
+          <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
+            <span className="text-blue-500">📱</span>
+            Telegram аккаунт
+          </h3>
+          
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+              <div>
+                <h4 className="font-medium text-black">Имя пользователя</h4>
+                <p className="text-sm text-gray-600">{getUserName()}</p>
+              </div>
+              <div className="text-blue-500 text-2xl">👤</div>
+            </div>
+            
+            {user.username && (
+              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                <div>
+                  <h4 className="font-medium text-black">Username</h4>
+                  <p className="text-sm text-gray-600">@{user.username}</p>
+                </div>
+                <div className="text-blue-500 text-2xl">🔗</div>
+              </div>
+            )}
+            
+            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+              <div>
+                <h4 className="font-medium text-black">ID пользователя</h4>
+                <p className="text-sm text-gray-600">{user.id}</p>
+              </div>
+              <div className="text-blue-500 text-2xl">🆔</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Основные настройки */}
       <div className="glass-effect rounded-2xl shadow-lg border border-gray-200 p-6 mb-6 animate-slide-up">

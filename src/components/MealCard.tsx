@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Meal, Product } from '@/types';
 import { useChatStore } from '@/lib/store';
 import EditProductModal from './EditProductModal';
+import { useTelegram } from '@/hooks/useTelegram';
 
 interface MealCardProps {
   meal: Meal;
@@ -15,6 +16,7 @@ interface MealCardProps {
 export default function MealCard({ meal, onConfirm, onEdit, isLoading = false }: MealCardProps) {
   const { updateProduct, removeProduct } = useChatStore();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const { shareMeal, isTelegramApp } = useTelegram();
 
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
@@ -106,6 +108,17 @@ export default function MealCard({ meal, onConfirm, onEdit, isLoading = false }:
             </div>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+              {/* Кнопка шаринга для Telegram */}
+              {isTelegramApp() && (
+                <button
+                  onClick={() => shareMeal(meal)}
+                  className="px-3 sm:px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 mobile-button text-sm sm:text-base font-medium telegram-button"
+                  title="Поделиться результатом"
+                >
+                  📤 Поделиться
+                </button>
+              )}
+              
               <button
                 onClick={() => onEdit(meal)}
                 className="px-3 sm:px-4 py-2 text-black bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-[#f8cf5d] focus:ring-2 focus:ring-[#f8cf5d] focus:ring-offset-2 transition-all duration-300 mobile-button text-sm sm:text-base font-medium"

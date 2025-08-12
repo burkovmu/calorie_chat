@@ -8,7 +8,6 @@ export default function HistoryPage() {
   return (
     <PageLayout 
       title="История питания"
-      subtitle="Отслеживайте свои приемы пищи"
     >
       <MealHistory userId={userId} />
     </PageLayout>

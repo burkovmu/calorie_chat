@@ -5,21 +5,24 @@ import MessageList from './MessageList';
 import MealCard from './MealCard';
 import { useChatStore } from '../lib/store';
 import { Message, Meal } from '../types';
+import { useTelegram } from '../hooks/useTelegram';
 
 export default function ChatPage() {
   const { messages, addMessage, pendingMeal, setPendingMeal, isLoading, setLoading, error, setError } = useChatStore();
   const [currentMeal, setCurrentMeal] = useState<Meal | null>(null);
   const [inputText, setInputText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const { getUserId, getUserName, shareMeal, showAlert, isTelegramApp } = useTelegram();
 
   // Добавляем приветственное сообщение при первом загрузке
   useEffect(() => {
     const hasShownWelcome = sessionStorage.getItem('calorie-chat-welcome-shown');
     
     if (!hasShownWelcome && messages.length === 0) {
+      const userName = getUserName();
       const welcomeMessage: Omit<Message, 'id' | 'timestamp'> = {
         role: 'assistant',
-        text: 'Привет! Я помогу тебе подсчитать калории. Просто опиши, что ты съел, и я проанализирую это для тебя. 🍽️',
+        text: `Привет, ${userName}! Я помогу тебе подсчитать калории. Просто опиши, что ты съел, и я проанализирую это для тебя. 🍽️`,
       };
       addMessage(welcomeMessage);
       sessionStorage.setItem('calorie-chat-welcome-shown', 'true');
@@ -93,8 +96,8 @@ export default function ChatPage() {
     setError(null);
 
     try {
-      // Временно используем фиксированный userId (позже можно добавить аутентификацию)
-      const userId = 'user_1'; // Заглушка
+      // Используем Telegram userId или демо-режим
+      const userId = getUserId();
 
       const response = await fetch('/api/saveMeal', {
         method: 'POST',

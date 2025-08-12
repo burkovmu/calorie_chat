@@ -8,7 +8,6 @@ export default function AnalyticsPage() {
   return (
     <PageLayout 
       title="Аналитика питания"
-      subtitle="Анализируйте свои пищевые привычки"
     >
       <Analytics userId={userId} />
     </PageLayout>
