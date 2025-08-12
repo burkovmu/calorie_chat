@@ -1,171 +1,266 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useChatStore } from '@/lib/store';
+import React, { useState, useEffect } from 'react';
 import MessageList from './MessageList';
-import ChatInput from './ChatInput';
 import MealCard from './MealCard';
-import { Meal } from '@/types';
+import { useChatStore } from '../lib/store';
+import { Message, Meal } from '../types';
 
 export default function ChatPage() {
-  const { 
-    messages, 
-    pendingMeal, 
-    isLoading, 
-    error,
-    addMessage, 
-    setPendingMeal, 
-    setLoading, 
-    setError 
-  } = useChatStore();
+  const { messages, addMessage, pendingMeal, setPendingMeal, isLoading, setLoading, error, setError } = useChatStore();
+  const [currentMeal, setCurrentMeal] = useState<Meal | null>(null);
+  const [inputText, setInputText] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Используем UUID для демо-пользователя (в реальном приложении это будет ID из Supabase Auth)
-  const [userId] = useState('550e8400-e29b-41d4-a716-446655440000');
-
+  // Добавляем приветственное сообщение при первом загрузке
   useEffect(() => {
-    // Добавляем приветственное сообщение
-    if (messages.length === 0) {
-      addMessage({
+    const hasShownWelcome = sessionStorage.getItem('calorie-chat-welcome-shown');
+    
+    if (!hasShownWelcome && messages.length === 0) {
+      const welcomeMessage: Omit<Message, 'id' | 'timestamp'> = {
         role: 'assistant',
-        text: 'Привет! Я помогу тебе подсчитать калории. Просто опиши, что ты съел, и я проанализирую это для тебя.'
-      });
+        text: 'Привет! Я помогу тебе подсчитать калории. Просто опиши, что ты съел, и я проанализирую это для тебя. 🍽️',
+      };
+      addMessage(welcomeMessage);
+      sessionStorage.setItem('calorie-chat-welcome-shown', 'true');
     }
   }, [messages.length, addMessage]);
 
-  const handleSend = async (text: string) => {
-    if (!text.trim()) return;
+  const handleSendMessage = async () => {
+    if (!inputText.trim() || isLoading) return;
 
-    // Добавляем сообщение пользователя
-    addMessage({ role: 'user', text });
+    const messageText = inputText.trim();
+    
+    const userMessage: Omit<Message, 'id' | 'timestamp'> = {
+      role: 'user',
+      text: messageText,
+    };
+
+    addMessage(userMessage);
+    setInputText('');
     setLoading(true);
     setError(null);
 
     try {
+      // Отправляем запрос на анализ
       const response = await fetch('/api/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: messageText }),
       });
-
-      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Ошибка анализа');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Добавляем ответ ИИ
-      addMessage({ 
-        role: 'assistant', 
-        text: data.displayText,
-        meta: { mealData: data.mealData }
-      });
-
-      // Устанавливаем pending meal для редактирования
-      setPendingMeal(data.mealData);
-
+      const data = await response.json();
+      
+      if (data.success) {
+        // Добавляем ответ ассистента
+        const assistantMessage: Omit<Message, 'id' | 'timestamp'> = {
+          role: 'assistant',
+          text: data.displayText,
+        };
+        addMessage(assistantMessage);
+        
+        // Устанавливаем данные о еде для отображения
+        setPendingMeal(data.mealData);
+        setCurrentMeal(data.mealData);
+      } else {
+        throw new Error(data.error || 'Неизвестная ошибка');
+      }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
+      const errorMessage = err instanceof Error ? err.message : 'Произошла ошибка при отправке сообщения';
       setError(errorMessage);
-      addMessage({ 
-        role: 'assistant', 
-        text: `Извини, произошла ошибка: ${errorMessage}. Попробуй еще раз или опиши еду по-другому.`
-      });
+      
+      // Добавляем сообщение об ошибке от ассистента
+      const errorAssistantMessage: Omit<Message, 'id' | 'timestamp'> = {
+        role: 'assistant',
+        text: `Извините, произошла ошибка: ${errorMessage}. Попробуйте еще раз или опишите еду по-другому.`,
+      };
+      addMessage(errorAssistantMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleConfirm = async () => {
-    if (!pendingMeal) return;
+  const handleSaveMeal = async () => {
+    if (!currentMeal || isSaving) return;
 
-    setLoading(true);
+    setIsSaving(true);
     setError(null);
 
     try {
+      // Временно используем фиксированный userId (позже можно добавить аутентификацию)
+      const userId = 'user_1'; // Заглушка
+
       const response = await fetch('/api/saveMeal', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ 
-          userId, 
-          mealData: pendingMeal 
-        })
+          userId,
+          mealData: currentMeal 
+        }),
       });
-
-      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Ошибка сохранения');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Добавляем системное сообщение об успешном сохранении
-      addMessage({ 
-        role: 'system', 
-        text: `✅ Прием пищи сохранен в дневник! Всего калорий: ${pendingMeal.total_calories} ккал` 
-      });
-
-      // Очищаем pending meal
-      setPendingMeal(null);
-    } catch (error) {
-      console.error('Ошибка сохранения:', error);
-      setError(error instanceof Error ? error.message : 'Ошибка сохранения');
+      const data = await response.json();
+      
+      if (data.success) {
+        // Добавляем сообщение об успешном сохранении
+        const successMessage: Omit<Message, 'id' | 'timestamp'> = {
+          role: 'assistant',
+          text: `✅ Прием пищи успешно сохранен в дневник! ID: ${data.mealId}`,
+        };
+        addMessage(successMessage);
+        
+        // Очищаем текущую еду
+        setCurrentMeal(null);
+        setPendingMeal(null);
+      } else {
+        throw new Error(data.error || 'Неизвестная ошибка');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Произошла ошибка при сохранении';
+      setError(errorMessage);
+      
+      // Добавляем сообщение об ошибке от ассистента
+      const errorAssistantMessage: Omit<Message, 'id' | 'timestamp'> = {
+        role: 'assistant',
+        text: `Извините, произошла ошибка при сохранении: ${errorMessage}. Попробуйте еще раз.`,
+      };
+      addMessage(errorAssistantMessage);
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
-  const handleEdit = (updatedMeal: Meal) => {
-    setPendingMeal(updatedMeal);
+  const handleEditMeal = (meal: Meal) => {
+    // Пока что просто обновляем текущую еду
+    setCurrentMeal(meal);
+    setPendingMeal(meal);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputText(e.target.value);
+    
+    // Автоматическое изменение размера поля ввода
+    const textarea = e.target;
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
   };
 
   return (
-    <div className="flex flex-col h-screen h-dvh bg-gray-50 safe-area">
-      {/* Заголовок - адаптивный для мобильных */}
-      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 safe-top">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 text-center sm:text-left">
-          🍽️ Calorie Chat AI
-        </h1>
-        <p className="text-sm sm:text-base text-gray-600 mt-1 text-center sm:text-left">
-          Опиши что съел, и ИИ подсчитает калории
-        </p>
-      </div>
-
-      {/* Основной контент */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Список сообщений */}
-        <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-3 sm:py-4 swipe-area">
+    <div className="flex flex-col h-full relative">
+      {/* Основной контент с отступом снизу для поля ввода */}
+      <div className="flex-1 overflow-y-auto px-4 pb-24">
+        <div className="max-w-4xl mx-auto">
           <MessageList messages={messages} />
           
-          {/* Карточка с результатом анализа */}
-          {pendingMeal && (
-            <div className="mt-4 animate-slide-up">
+          {/* Карточка еды */}
+          {currentMeal && (
+            <div className="mt-4">
               <MealCard 
-                meal={pendingMeal} 
-                onConfirm={handleConfirm}
-                onEdit={handleEdit}
-                isLoading={isLoading}
+                meal={currentMeal} 
+                onConfirm={handleSaveMeal}
+                onEdit={handleEditMeal}
+                isLoading={isSaving}
               />
             </div>
           )}
 
           {/* Индикатор загрузки */}
           {isLoading && (
-            <div className="flex justify-center items-center py-4">
-              <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-primary-500"></div>
-              <span className="ml-2 text-sm sm:text-base text-gray-600">Анализирую...</span>
+            <div className="flex justify-center items-center py-6">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#f8cf5d]"></div>
+              <span className="ml-3 text-black font-medium">Анализирую...</span>
             </div>
           )}
 
           {/* Ошибка */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 mt-4 mx-2 sm:mx-0">
-              <p className="text-sm sm:text-base text-red-800">{error}</p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4 animate-slide-up">
+              <p className="text-red-800 font-medium">{error}</p>
             </div>
           )}
         </div>
+      </div>
 
-        {/* Поле ввода - адаптивное для мобильных */}
-        <div className="border-t border-gray-200 bg-white p-3 sm:p-6 safe-bottom">
-          <ChatInput onSend={handleSend} disabled={isLoading} />
+      {/* Поле для ввода сообщения - прямо внутри чата */}
+      <div className="px-4 pb-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex gap-3 items-end">
+            <div className="flex-1 relative">
+              <div className="relative bg-gradient-to-r from-gray-50/50 to-white rounded-2xl border-2 border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 focus-within:border-[#f8cf5d] focus-within:shadow-2xl focus-within:shadow-[#f8cf5d]/30">
+                <textarea
+                  value={inputText}
+                  onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Опиши что ты съел..."
+                  className="w-full h-full px-6 py-4 pr-20 bg-transparent resize-none focus:outline-none text-black placeholder-gray-500 font-medium text-base leading-relaxed"
+                  rows={1}
+                  style={{ 
+                    height: '56px',
+                    minHeight: '56px',
+                    maxHeight: '120px'
+                  }}
+                  disabled={isLoading}
+                />
+                
+                
+                {/* Кнопка отправки */}
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!inputText.trim() || isLoading}
+                  className="absolute right-2 top-2 h-12 w-12 bg-[#f8cf5d] hover:shadow-lg hover:shadow-[#f8cf5d]/30 text-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f8cf5d]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center group"
+                  title="Отправить сообщение"
+                >
+                  {isLoading ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>
+                  ) : (
+                    <svg 
+                      className="w-5 h-5 transform group-hover:scale-110 transition-transform duration-200" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2.5} 
+                        d="M5 12h14M12 5l7 7-7 7" 
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              
+              {/* Подсказка */}
+              
+            </div>
+          </div>
         </div>
       </div>
     </div>

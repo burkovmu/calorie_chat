@@ -113,9 +113,9 @@ ${text}
       const validatedProduct: Product = {
         id: `temp_${index}`,
         name: product.name.trim(),
-        weight_g: product.weight_g || null,
-        calories: product.calories || null,
-        notes: product.notes || null,
+        weight_g: product.weight_g || undefined,
+        calories: product.calories || undefined,
+        notes: product.notes || undefined,
       };
 
       if (validatedProduct.calories) {

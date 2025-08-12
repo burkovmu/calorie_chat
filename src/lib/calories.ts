@@ -1,3 +1,5 @@
+import { Product } from '@/types';
+
 // Lookup table для калорий на 100г (kcal per 100g)
 export const KCAL_PER_100G: Record<string, number> = {
   // Мясо и птица
