@@ -129,4 +129,7 @@ export default function SimpleTestPage() {
       </div>
     </div>
   );
-} 
+}
+
+// Отключаем статическую генерацию
+export const dynamic = 'force-dynamic'; 

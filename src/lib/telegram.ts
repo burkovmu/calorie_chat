@@ -1,20 +1,28 @@
-import WebApp from '@twa-dev/sdk';
+// Динамический импорт WebApp только на клиенте
+let WebApp: any = null;
+if (typeof window !== 'undefined') {
+  try {
+    WebApp = require('@twa-dev/sdk').default;
+  } catch (error) {
+    console.log('Telegram SDK not available');
+  }
+}
 
 // Проверка, запущено ли приложение в Telegram
 export const isTelegramWebApp = (): boolean => {
   if (typeof window === 'undefined') return false;
-  return 'Telegram' in window;
+  return 'Telegram' in window && WebApp !== null;
 };
 
 // Получение данных пользователя
 export const getTelegramUser = () => {
-  if (!isTelegramWebApp()) return null;
+  if (!isTelegramWebApp() || !WebApp) return null;
   return WebApp.initDataUnsafe?.user || null;
 };
 
 // Получение темы Telegram
 export const getTelegramTheme = () => {
-  if (!isTelegramWebApp()) return null;
+  if (!isTelegramWebApp() || !WebApp) return null;
   return WebApp.themeParams || null;
 };
 
@@ -46,19 +54,25 @@ export const validateTelegramData = (initData: string, botToken: string): boolea
 
 // Настройка цветов Telegram
 export const setupTelegramColors = () => {
-  if (!isTelegramWebApp()) return;
+  if (!isTelegramWebApp() || !WebApp) return;
   
   try {
     // Настройка цветов заголовка и фона
-    WebApp.setHeaderColor('#3b82f6' as `#${string}`);
-    WebApp.setBackgroundColor('#f9fafb' as `#${string}`);
+    if (WebApp.setHeaderColor) {
+      WebApp.setHeaderColor('#3b82f6' as `#${string}`);
+    }
+    if (WebApp.setBackgroundColor) {
+      WebApp.setBackgroundColor('#f9fafb' as `#${string}`);
+    }
     
     // Настройка основной кнопки
-    WebApp.MainButton.setText('Сохранить');
-    WebApp.MainButton.setParams({
-      color: '#3b82f6',
-      text_color: '#ffffff',
-    });
+    if (WebApp.MainButton && WebApp.MainButton.setText) {
+      WebApp.MainButton.setText('Сохранить');
+      WebApp.MainButton.setParams({
+        color: '#3b82f6',
+        text_color: '#ffffff',
+      });
+    }
   } catch (error) {
     console.error('Error setting up Telegram colors:', error);
   }
@@ -66,23 +80,25 @@ export const setupTelegramColors = () => {
 
 // Показ уведомлений через Telegram
 export const showTelegramNotification = (message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
-  if (!isTelegramWebApp()) {
+  if (!isTelegramWebApp() || !WebApp) {
     // Fallback для браузера
     console.log(`${type.toUpperCase()}: ${message}`);
     return;
   }
   
   try {
-    switch (type) {
-      case 'success':
-        WebApp.showAlert(message);
-        break;
-      case 'warning':
-      case 'error':
-        WebApp.showAlert(`⚠️ ${message}`);
-        break;
-      default:
-        WebApp.showAlert(message);
+    if (WebApp.showAlert) {
+      switch (type) {
+        case 'success':
+          WebApp.showAlert(message);
+          break;
+        case 'warning':
+        case 'error':
+          WebApp.showAlert(`⚠️ ${message}`);
+          break;
+        default:
+          WebApp.showAlert(message);
+      }
     }
   } catch (error) {
     console.error('Error showing Telegram notification:', error);
@@ -91,7 +107,7 @@ export const showTelegramNotification = (message: string, type: 'info' | 'succes
 
 // Шаринг данных через Telegram
 export const shareViaTelegram = (text: string, title?: string) => {
-  if (!isTelegramWebApp()) {
+  if (!isTelegramWebApp() || !WebApp) {
     // Fallback для браузера - копирование в буфер обмена
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text);
@@ -101,14 +117,16 @@ export const shareViaTelegram = (text: string, title?: string) => {
   }
   
   try {
-    WebApp.showPopup({
-      title: title || 'Поделиться',
-      message: text,
-      buttons: [
-        { id: 'share', type: 'ok' },
-        { id: 'cancel', type: 'cancel' }
-      ]
-    });
+    if (WebApp.showPopup) {
+      WebApp.showPopup({
+        title: title || 'Поделиться',
+        message: text,
+        buttons: [
+          { id: 'share', type: 'ok' },
+          { id: 'cancel', type: 'cancel' }
+        ]
+      });
+    }
   } catch (error) {
     console.error('Error showing share popup:', error);
   }
@@ -116,7 +134,7 @@ export const shareViaTelegram = (text: string, title?: string) => {
 
 // Получение размеров viewport Telegram
 export const getTelegramViewport = () => {
-  if (!isTelegramWebApp()) {
+  if (!isTelegramWebApp() || !WebApp) {
     return {
       height: window.innerHeight,
       stableHeight: window.innerHeight,
@@ -124,19 +142,19 @@ export const getTelegramViewport = () => {
   }
   
   return {
-    height: WebApp.viewportHeight,
-    stableHeight: WebApp.viewportStableHeight,
+    height: WebApp.viewportHeight || window.innerHeight,
+    stableHeight: WebApp.viewportStableHeight || window.innerHeight,
   };
 };
 
 // Настройка основной кнопки Telegram
 export const setupMainButton = (text: string, onClick: () => void) => {
-  if (!isTelegramWebApp()) return;
+  if (!isTelegramWebApp() || !WebApp || !WebApp.MainButton) return;
   
   try {
-    WebApp.MainButton.setText(text);
-    WebApp.MainButton.onClick(onClick);
-    WebApp.MainButton.show();
+    if (WebApp.MainButton.setText) WebApp.MainButton.setText(text);
+    if (WebApp.MainButton.onClick) WebApp.MainButton.onClick(onClick);
+    if (WebApp.MainButton.show) WebApp.MainButton.show();
   } catch (error) {
     console.error('Error setting up main button:', error);
   }
@@ -144,10 +162,10 @@ export const setupMainButton = (text: string, onClick: () => void) => {
 
 // Скрытие основной кнопки Telegram
 export const hideMainButton = () => {
-  if (!isTelegramWebApp()) return;
+  if (!isTelegramWebApp() || !WebApp || !WebApp.MainButton) return;
   
   try {
-    WebApp.MainButton.hide();
+    if (WebApp.MainButton.hide) WebApp.MainButton.hide();
   } catch (error) {
     console.error('Error hiding main button:', error);
   }
@@ -178,13 +196,13 @@ export const setTelegramStorage = async (key: string, value: string): Promise<vo
 
 // Инициализация Telegram Web App
 export const initializeTelegram = () => {
-  if (!isTelegramWebApp()) {
+  if (!isTelegramWebApp() || !WebApp) {
     console.log('Not running in Telegram Web App');
     return false;
   }
   
   try {
-    WebApp.ready();
+    if (WebApp.ready) WebApp.ready();
     setupTelegramColors();
     console.log('Telegram Web App initialized successfully');
     return true;

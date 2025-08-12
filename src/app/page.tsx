@@ -9,4 +9,7 @@ export default function Home() {
       <ChatPage />
     </PageLayout>
   );
-} 
+}
+
+// Отключаем статическую генерацию для страницы с Telegram функциональностью
+export const dynamic = 'force-dynamic'; 

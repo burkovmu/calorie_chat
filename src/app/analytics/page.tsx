@@ -12,4 +12,7 @@ export default function AnalyticsPage() {
       <Analytics userId={userId} />
     </PageLayout>
   );
-} 
+}
+
+// Отключаем статическую генерацию
+export const dynamic = 'force-dynamic'; 

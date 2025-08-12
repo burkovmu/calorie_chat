@@ -1,0 +1,19 @@
+# Исключаем тестовые страницы из продакшена
+src/app/simple-test/
+src/app/test-telegram/
+
+# Исключаем тестовые компоненты
+src/components/TelegramTest.tsx
+
+# Исключаем файлы разработки
+*.log
+.env.local
+.env.development
+.env.test
+
+# Исключаем временные файлы
+.next/
+node_modules/
+.DS_Store
+*.tmp
+*.temp 

@@ -7,4 +7,7 @@ export default function TestTelegramPage() {
       <TelegramTest />
     </PageLayout>
   );
-} 
+}
+
+// Отключаем статическую генерацию
+export const dynamic = 'force-dynamic'; 

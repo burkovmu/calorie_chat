@@ -1,7 +1,16 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import WebApp from '@twa-dev/sdk';
+
+// Динамический импорт WebApp только на клиенте
+let WebApp: any = null;
+if (typeof window !== 'undefined') {
+  try {
+    WebApp = require('@twa-dev/sdk').default;
+  } catch (error) {
+    console.log('Telegram SDK not available');
+  }
+}
 
 interface TelegramUser {
   id: number;
@@ -45,27 +54,35 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
     
     try {
       // Проверяем, доступен ли Telegram Web App
-      if (typeof WebApp !== 'undefined' && WebApp.ready) {
-        // Инициализация Telegram Web App
-        WebApp.ready();
-        
-        // Настройка цветов заголовка и фона
-        WebApp.setHeaderColor('#3b82f6' as `#${string}`);
-        WebApp.setBackgroundColor('#f9fafb' as `#${string}`);
-        
-        // Получение данных пользователя
-        const telegramUser = WebApp.initDataUnsafe?.user;
-        if (telegramUser) {
-          setUser(telegramUser);
+      if (WebApp && typeof WebApp.ready === 'function') {
+        try {
+          // Инициализация Telegram Web App
+          WebApp.ready();
+          
+          // Настройка цветов заголовка и фона
+          if (WebApp.setHeaderColor) {
+            WebApp.setHeaderColor('#3b82f6' as `#${string}`);
+          }
+          if (WebApp.setBackgroundColor) {
+            WebApp.setBackgroundColor('#f9fafb' as `#${string}`);
+          }
+          
+          // Получение данных пользователя
+          const telegramUser = WebApp.initDataUnsafe?.user;
+          if (telegramUser) {
+            setUser(telegramUser);
+          }
+          
+          // Получение темы
+          const telegramTheme = WebApp.themeParams;
+          if (telegramTheme) {
+            setTheme(telegramTheme);
+          }
+          
+          console.log('Telegram Web App initialized successfully');
+        } catch (error) {
+          console.error('Error initializing Telegram Web App:', error);
         }
-        
-        // Получение темы
-        const telegramTheme = WebApp.themeParams;
-        if (telegramTheme) {
-          setTheme(telegramTheme);
-        }
-        
-        console.log('Telegram Web App initialized successfully');
       } else {
         console.log('Telegram Web App not available, running in fallback mode');
       }
@@ -79,17 +96,19 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const share = (text: string) => {
-    if (typeof window === 'undefined' || typeof WebApp === 'undefined') return;
+    if (typeof window === 'undefined' || !WebApp) return;
     
     try {
-      WebApp.showPopup({
-        title: 'Поделиться',
-        message: text,
-        buttons: [
-          { id: 'share', type: 'ok' },
-          { id: 'cancel', type: 'cancel' }
-        ]
-      });
+      if (WebApp.showPopup) {
+        WebApp.showPopup({
+          title: 'Поделиться',
+          message: text,
+          buttons: [
+            { id: 'share', type: 'ok' },
+            { id: 'cancel', type: 'cancel' }
+          ]
+        });
+      }
     } catch (error) {
       console.error('Error showing share popup:', error);
     }
@@ -102,7 +121,7 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
     }
     
     try {
-      if (typeof WebApp !== 'undefined' && WebApp.showAlert) {
+      if (WebApp && WebApp.showAlert) {
         WebApp.showAlert(message);
       } else {
         // Fallback для браузера
@@ -116,24 +135,36 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
   };
 
   const showPopup = (params: any) => {
+    if (!WebApp) return;
+    
     try {
-      WebApp.showPopup(params);
+      if (WebApp.showPopup) {
+        WebApp.showPopup(params);
+      }
     } catch (error) {
       console.error('Error showing popup:', error);
     }
   };
 
   const setHeaderColor = (color: string) => {
+    if (!WebApp) return;
+    
     try {
-      WebApp.setHeaderColor(color as `#${string}`);
+      if (WebApp.setHeaderColor) {
+        WebApp.setHeaderColor(color as `#${string}`);
+      }
     } catch (error) {
       console.error('Error setting header color:', error);
     }
   };
 
   const setBackgroundColor = (color: string) => {
+    if (!WebApp) return;
+    
     try {
-      WebApp.setBackgroundColor(color as `#${string}`);
+      if (WebApp.setBackgroundColor) {
+        WebApp.setBackgroundColor(color as `#${string}`);
+      }
     } catch (error) {
       console.error('Error setting background color:', error);
     }
