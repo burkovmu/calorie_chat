@@ -113,4 +113,7 @@ export async function PATCH(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
+
+// Отключаем статическую генерацию
+export const dynamic = 'force-dynamic'; 

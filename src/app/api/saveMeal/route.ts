@@ -84,4 +84,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
+
+// Отключаем статическую генерацию
+export const dynamic = 'force-dynamic'; 

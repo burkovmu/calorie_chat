@@ -10,6 +10,9 @@ const nextConfig = {
     maxInactiveAge: 25 * 1000,
     pagesBufferLength: 2,
   },
+  // Отключаем статическую генерацию для всех страниц
+  output: 'standalone',
+  
   // Улучшить стабильность разработки
   experimental: {
     optimizeCss: true,
