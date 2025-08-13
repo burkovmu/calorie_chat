@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product } from '@/types';
 import { findProductCalories, calculateCalories } from '@/lib/calories';
+import Icon from './Icon';
 
 interface EditProductModalProps {
   product: Product;
@@ -74,7 +75,7 @@ export default function EditProductModal({ product, onSave, onCancel }: EditProd
         {/* Заголовок - адаптивный с золотистым акцентом */}
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50/30 to-white rounded-t-2xl">
           <h3 className="text-base sm:text-lg font-semibold text-black flex items-center gap-2">
-            <span className="text-[#f8cf5d]">✏️</span>
+            <Icon name="edit" size={20} />
             Редактировать продукт
           </h3>
         </div>
@@ -129,7 +130,7 @@ export default function EditProductModal({ product, onSave, onCancel }: EditProd
             {/* Показываем оценку калорий если доступна */}
             {estimatedCalories && !editedProduct.calories && (
               <p className="text-xs sm:text-sm text-[#f8cf5d] mt-1 font-medium bg-[#f8cf5d]/10 px-2 py-1 rounded-lg inline-block">
-                💡 Примерная оценка: {estimatedCalories} ккал
+                Примерная оценка: {estimatedCalories} ккал
               </p>
             )}
           </div>

@@ -22,7 +22,7 @@ export default function ChatPage() {
       const userName = getUserName();
       const welcomeMessage: Omit<Message, 'id' | 'timestamp'> = {
         role: 'assistant',
-        text: `Привет, ${userName}! Я помогу тебе подсчитать калории. Просто опиши, что ты съел, и я проанализирую это для тебя. 🍽️`,
+        text: `Привет, ${userName}! Я помогу тебе подсчитать калории. Просто опиши, что ты съел, и я проанализирую это для тебя.`,
       };
       addMessage(welcomeMessage);
       sessionStorage.setItem('calorie-chat-welcome-shown', 'true');
@@ -120,7 +120,7 @@ export default function ChatPage() {
         // Добавляем сообщение об успешном сохранении
         const successMessage: Omit<Message, 'id' | 'timestamp'> = {
           role: 'assistant',
-          text: `✅ Прием пищи успешно сохранен в дневник! ID: ${data.mealId}`,
+          text: 'Прием пищи успешно сохранен в дневник!',
         };
         addMessage(successMessage);
         
@@ -215,7 +215,7 @@ export default function ChatPage() {
         <div className="max-w-4xl mx-auto">
           <div className="flex gap-3 items-end">
             <div className="flex-1 relative">
-              <div className="relative bg-gradient-to-r from-gray-50/50 to-white rounded-2xl border-2 border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 focus-within:border-[#f8cf5d] focus-within:shadow-2xl focus-within:shadow-[#f8cf5d]/30">
+              <div className="relative bg-white rounded-2xl border-2 border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 focus-within:border-[#f8cf5d] focus-within:shadow-2xl focus-within:shadow-[#f8cf5d]/30">
                 <textarea
                   value={inputText}
                   onChange={handleInputChange}

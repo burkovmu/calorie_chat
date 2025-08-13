@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Meal, Product } from '@/types';
-import { useChatStore } from '@/lib/store';
 import EditProductModal from './EditProductModal';
-import { useTelegram } from '@/hooks/useTelegram';
+import Icon from './Icon';
 
 interface MealCardProps {
   meal: Meal;
@@ -14,21 +13,33 @@ interface MealCardProps {
 }
 
 export default function MealCard({ meal, onConfirm, onEdit, isLoading = false }: MealCardProps) {
-  const { updateProduct, removeProduct } = useChatStore();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const { shareMeal, isTelegramApp } = useTelegram();
 
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
   };
 
-  const handleSaveProduct = (updatedProduct: Product) => {
-    updateProduct(updatedProduct.id!, updatedProduct);
-    setEditingProduct(null);
+  const handleDeleteProduct = (productId: string) => {
+    const updatedProducts = meal.products.filter(p => p.id !== productId);
+    const updatedMeal = {
+      ...meal,
+      products: updatedProducts,
+      total_calories: updatedProducts.reduce((sum, p) => sum + (p.calories || 0), 0)
+    };
+    onEdit(updatedMeal);
   };
 
-  const handleDeleteProduct = (productId: string) => {
-    removeProduct(productId);
+  const handleSaveProduct = (updatedProduct: Product) => {
+    const updatedProducts = meal.products.map(p => 
+      p.id === updatedProduct.id ? updatedProduct : p
+    );
+    const updatedMeal = {
+      ...meal,
+      products: updatedProducts,
+      total_calories: updatedProducts.reduce((sum, p) => sum + (p.calories || 0), 0)
+    };
+    onEdit(updatedMeal);
+    setEditingProduct(null);
   };
 
   const handleConfirmMeal = () => {
@@ -37,29 +48,36 @@ export default function MealCard({ meal, onConfirm, onEdit, isLoading = false }:
 
   return (
     <>
-      <div className="glass-effect rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 mobile-card mx-2 sm:mx-0 animate-slide-up">
-        {/* Заголовок карточки - адаптивный */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50/50 to-white rounded-t-2xl">
+      <div className="glass-effect rounded-2xl shadow-lg border border-gray-200 overflow-hidden animate-slide-up">
+        {/* Заголовок */}
+        <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-[#f8cf5d]/20 to-[#f8cf5d]/10 border-b border-gray-200">
           <h3 className="text-base sm:text-lg font-semibold text-black flex items-center gap-2">
-            <span className="text-[#f8cf5d]">📊</span>
-            Результат анализа
+            <Icon name="chat" size={20} />
+            Анализ еды
           </h3>
-          <p className="text-xs sm:text-sm text-gray-600 mt-1 font-medium">
-            Проверь и отредактируй данные перед сохранением
-          </p>
         </div>
 
-        {/* Список продуктов - адаптивный */}
+        {/* Список продуктов */}
         <div className="px-3 sm:px-6 py-3 sm:py-4">
-          <div className="space-y-2 sm:space-y-3">
-            {meal.products.map((product, index) => (
-              <div key={product.id} className="flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r from-gray-50/30 to-white rounded-xl border border-gray-200/50 hover:border-[#f8cf5d] transition-all duration-300">
+          <div className="space-y-3">
+            {meal.products.map((product) => (
+              <div key={product.id} className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50/50 to-white rounded-xl border border-gray-200/50">
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-black text-sm sm:text-base truncate">{product.name}</div>
-                  <div className="text-xs sm:text-sm text-gray-600">
-                    {product.weight_g ? `${product.weight_g} г` : 'вес не указан'} 
-                    {product.calories && ` • ${product.calories} ккал`}
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-medium text-black truncate">{product.name}</h4>
+                    {product.weight_g && (
+                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        {product.weight_g}г
+                      </span>
+                    )}
                   </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-black">
+                      {product.calories || 0} ккал
+                    </span>
+                  </div>
+                  
                   {product.notes && (
                     <div className="text-xs text-gray-500 mt-1 italic truncate">
                       {product.notes}
@@ -73,14 +91,14 @@ export default function MealCard({ meal, onConfirm, onEdit, isLoading = false }:
                     className="p-1.5 sm:p-2 text-gray-600 hover:text-[#f8cf5d] hover:bg-[#f8cf5d]/10 rounded-lg transition-all duration-300 hover:scale-110"
                     title="Редактировать"
                   >
-                    <span className="text-sm sm:text-base">✏️</span>
+                    <Icon name="edit" size={16} />
                   </button>
                   <button
                     onClick={() => handleDeleteProduct(product.id!)}
                     className="p-1.5 sm:p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300 hover:scale-110"
                     title="Удалить"
                   >
-                    <span className="text-sm sm:text-base">🗑️</span>
+                    <Icon name="delete" size={16} />
                   </button>
                 </div>
               </div>
@@ -108,17 +126,6 @@ export default function MealCard({ meal, onConfirm, onEdit, isLoading = false }:
             </div>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-              {/* Кнопка шаринга для Telegram */}
-              {isTelegramApp() && (
-                <button
-                  onClick={() => shareMeal(meal)}
-                  className="px-3 sm:px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 mobile-button text-sm sm:text-base font-medium telegram-button"
-                  title="Поделиться результатом"
-                >
-                  📤 Поделиться
-                </button>
-              )}
-              
               <button
                 onClick={() => onEdit(meal)}
                 className="px-3 sm:px-4 py-2 text-black bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-[#f8cf5d] focus:ring-2 focus:ring-[#f8cf5d] focus:ring-offset-2 transition-all duration-300 mobile-button text-sm sm:text-base font-medium"
@@ -139,8 +146,8 @@ export default function MealCard({ meal, onConfirm, onEdit, isLoading = false }:
                   </div>
                 ) : (
                   <>
-                    <span className="hidden sm:inline">✅ Сохранить в дневник</span>
-                    <span className="sm:hidden">💾 Сохранить</span>
+                    <span className="hidden sm:inline">Сохранить в дневник</span>
+                    <span className="sm:hidden">Сохранить</span>
                   </>
                 )}
               </button>

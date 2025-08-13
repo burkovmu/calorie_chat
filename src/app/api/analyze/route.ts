@@ -137,7 +137,7 @@ ${text}
       const weightText = p.weight_g ? `${p.weight_g} г` : '? г';
       const caloriesText = p.calories ? `${p.calories} ккал` : '? ккал';
       return `${i + 1}. ${p.name} — ${weightText} → ${caloriesText}`;
-    }).join('\n') + `\n\n**Итого:** ${totalCalories} ккал`;
+    }).join('\n') + `\n\nИтого: ${totalCalories} ккал`;
 
     // Логируем для отладки
     console.log('AI Response:', content);

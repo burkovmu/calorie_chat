@@ -2,6 +2,7 @@
 
 import { Message } from '@/types';
 import dayjs from 'dayjs';
+import Icon from './Icon';
 
 interface MessageListProps {
   messages: Message[];
@@ -28,13 +29,13 @@ export default function MessageList({ messages }: MessageListProps) {
   const getRoleIcon = (role: Message['role']) => {
     switch (role) {
       case 'user':
-        return '👤';
+        return 'user';
       case 'assistant':
-        return '🤖';
+        return 'assistant';
       case 'system':
-        return '✅';
+        return 'system';
       default:
-        return '💬';
+        return 'chat';
     }
   };
 
@@ -43,8 +44,8 @@ export default function MessageList({ messages }: MessageListProps) {
       {messages.map((message) => (
         <div key={message.id} className="flex items-start gap-3 animate-slide-up">
           {/* Иконка роли */}
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm border border-gray-200 shadow-sm">
-            {getRoleIcon(message.role)}
+          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 shadow-sm">
+            <Icon name={getRoleIcon(message.role)} size={16} />
           </div>
 
           {/* Сообщение */}
@@ -68,7 +69,9 @@ export default function MessageList({ messages }: MessageListProps) {
       {messages.length === 0 && (
         <div className="text-center py-12 animate-fade-in">
           <div className="relative">
-            <div className="text-6xl mb-6">🍽️</div>
+            <div className="mb-6 flex justify-center">
+              <Icon name="chat" size={48} />
+            </div>
             <div className="absolute inset-0 bg-gradient-to-r from-gray-200/20 to-gray-300/20 rounded-full blur-xl"></div>
           </div>
           <p className="text-xl font-semibold text-black mb-2">Начни чат!</p>

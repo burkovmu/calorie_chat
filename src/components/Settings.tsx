@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTelegram } from '@/hooks/useTelegram';
+import Icon from './Icon';
 
 export default function Settings() {
   const [dailyGoal, setDailyGoal] = useState(2000);
@@ -26,8 +27,8 @@ export default function Settings() {
       {isTelegramApp() && user && (
         <div className="glass-effect rounded-2xl shadow-lg border border-gray-200 p-6 mb-6 animate-slide-up">
           <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
-            <span className="text-blue-500">📱</span>
-            Telegram аккаунт
+            <Icon name="user" size={20} />
+            Информация о пользователе
           </h3>
           
           <div className="space-y-3">
@@ -36,7 +37,7 @@ export default function Settings() {
                 <h4 className="font-medium text-black">Имя пользователя</h4>
                 <p className="text-sm text-gray-600">{getUserName()}</p>
               </div>
-              <div className="text-blue-500 text-2xl">👤</div>
+              <Icon name="user" size={24} />
             </div>
             
             {user.username && (
@@ -45,7 +46,7 @@ export default function Settings() {
                   <h4 className="font-medium text-black">Username</h4>
                   <p className="text-sm text-gray-600">@{user.username}</p>
                 </div>
-                <div className="text-blue-500 text-2xl">🔗</div>
+                <Icon name="chat" size={24} />
               </div>
             )}
             
@@ -54,7 +55,7 @@ export default function Settings() {
                 <h4 className="font-medium text-black">ID пользователя</h4>
                 <p className="text-sm text-gray-600">{user.id}</p>
               </div>
-              <div className="text-blue-500 text-2xl">🆔</div>
+              <Icon name="system" size={24} />
             </div>
           </div>
         </div>
@@ -63,7 +64,7 @@ export default function Settings() {
       {/* Основные настройки */}
       <div className="glass-effect rounded-2xl shadow-lg border border-gray-200 p-6 mb-6 animate-slide-up">
         <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
-          <span className="text-[#f8cf5d]">🎯</span>
+          <Icon name="system" size={20} />
           Основные настройки
         </h3>
         
@@ -105,7 +106,7 @@ export default function Settings() {
       {/* Уведомления */}
       <div className="glass-effect rounded-2xl shadow-lg border border-gray-200 p-6 mb-6 animate-slide-up">
         <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
-          <span className="text-[#f8cf5d]">🔔</span>
+          <Icon name="bell" size={20} />
           Уведомления
         </h3>
         
@@ -131,7 +132,7 @@ export default function Settings() {
       {/* Внешний вид */}
       <div className="glass-effect rounded-2xl shadow-lg border border-gray-200 p-6 mb-6 animate-slide-up">
         <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
-          <span className="text-[#f8cf5d]">🎨</span>
+          <Icon name="paint" size={20} />
           Внешний вид
         </h3>
         
@@ -157,7 +158,7 @@ export default function Settings() {
       {/* Информация о приложении */}
       <div className="glass-effect rounded-2xl shadow-lg border border-gray-200 p-6 mb-6 animate-slide-up">
         <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
-          <span className="text-[#f8cf5d]">ℹ️</span>
+          <Icon name="info" size={20} />
           О приложении
         </h3>
         
@@ -183,7 +184,7 @@ export default function Settings() {
           onClick={handleSave}
           className="flex-1 bg-[#f8cf5d] text-black py-3 px-6 rounded-lg font-medium hover:shadow-lg hover:shadow-[#f8cf5d]/30 transition-all duration-300 transform hover:scale-105 active:scale-95"
         >
-          💾 Сохранить настройки
+          Сохранить настройки
         </button>
         
         <button

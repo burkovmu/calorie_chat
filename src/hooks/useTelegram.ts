@@ -55,13 +55,13 @@ export const useTelegram = () => {
   const shareMeal = (meal: any) => {
     if (!meal) return;
     
-    const shareText = `🍽️ Я съел ${meal.total_calories} ккал:\n${meal.products.map((p: any) => `• ${p.name} - ${p.calories} ккал`).join('\n')}`;
+    const shareText = `Я съел ${meal.total_calories} ккал:\n${meal.products.map((p: any) => `• ${p.name} - ${p.calories} ккал`).join('\n')}`;
     telegram.share(shareText);
   };
   
   const shareCalorieGoal = (goal: number, current: number) => {
     const percentage = Math.round((current / goal) * 100);
-    const shareText = `🎯 Моя цель по калориям: ${goal} ккал\n📊 Съедено: ${current} ккал (${percentage}%)`;
+    const shareText = `Моя цель по калориям: ${goal} ккал\nСъедено: ${current} ккал (${percentage}%)`;
     telegram.share(shareText);
   };
   
