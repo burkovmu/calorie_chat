@@ -222,7 +222,7 @@ export default function ChatPage() {
                   onKeyPress={handleKeyPress}
                   onKeyDown={handleKeyDown}
                   placeholder="Опиши что ты съел..."
-                  className="w-full h-full px-6 py-3 pr-20 bg-transparent resize-none focus:outline-none text-black placeholder-gray-500 font-medium text-base leading-relaxed"
+                  className="w-full h-full px-6 py-3 pr-20 bg-transparent resize-none focus:outline-none text-black placeholder-gray-500 font-medium text-sm leading-relaxed"
                   rows={1}
                   style={{ 
                     height: '45px',

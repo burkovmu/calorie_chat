@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Open_Sans } from 'next/font/google';
 import './globals.css';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { TelegramProvider } from '../components/TelegramProvider';
 
-const inter = Inter({ subsets: ['latin'] });
+const openSans = Open_Sans({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Calorie Chat AI - Подсчет калорий через чат',
@@ -44,7 +44,7 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#3b82f6" />
         <meta name="msapplication-tap-highlight" content="no" />
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${openSans.className} antialiased`}>
         <ErrorBoundary>
           <TelegramProvider>
             {children}

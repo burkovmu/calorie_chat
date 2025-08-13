@@ -75,7 +75,7 @@ export default function MessageList({ messages }: MessageListProps) {
             <div className="absolute inset-0 bg-gradient-to-r from-gray-200/20 to-gray-300/20 rounded-full blur-xl"></div>
           </div>
           <p className="text-xl font-semibold text-black mb-2">Начни чат!</p>
-          <p className="text-sm text-gray-600 max-w-md mx-auto">
+          <p className="text-xs text-gray-600 max-w-md mx-auto">
             Опиши что ты съел, и я помогу подсчитать калории
           </p>
         </div>
