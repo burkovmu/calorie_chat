@@ -61,7 +61,7 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
           
           // Настройка цветов заголовка и фона
           if (WebApp.setHeaderColor) {
-            WebApp.setHeaderColor('#3b82f6' as `#${string}`);
+            WebApp.setHeaderColor('#f8cf5d' as `#${string}`); // Золотой цвет для шапки
           }
           if (WebApp.setBackgroundColor) {
             WebApp.setBackgroundColor('#f9fafb' as `#${string}`);
@@ -152,6 +152,7 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
     try {
       if (WebApp.setHeaderColor) {
         WebApp.setHeaderColor(color as `#${string}`);
+        console.log(`Header color changed to: ${color}`);
       }
     } catch (error) {
       console.error('Error setting header color:', error);

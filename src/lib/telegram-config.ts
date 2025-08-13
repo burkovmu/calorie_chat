@@ -28,9 +28,9 @@ export const TELEGRAM_CONFIG = {
   APP_SETTINGS: {
     // Цвета по умолчанию
     DEFAULT_COLORS: {
-      header: '#3b82f6',
+      header: '#f8cf5d', // Золотой цвет для шапки
       background: '#f9fafb',
-      primary: '#3b82f6',
+      primary: '#f8cf5d', // Основной цвет тоже золотой
       secondary: '#f1f1f1',
       text: '#000000',
       textSecondary: '#666666',
