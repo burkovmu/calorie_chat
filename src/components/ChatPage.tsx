@@ -177,7 +177,7 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-full relative">
       {/* Основной контент с отступом снизу для поля ввода */}
-      <div className="flex-1 overflow-y-auto px-4 pb-24">
+      <div className="flex-1 overflow-y-auto px-4 pb-32">
         <div className="max-w-4xl mx-auto">
           <MessageList messages={messages} />
           
@@ -210,8 +210,8 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Поле для ввода сообщения - прямо внутри чата */}
-      <div className="px-4 pb-4">
+      {/* Поле для ввода сообщения - прикреплено к низу экрана */}
+      <div className="fixed bottom-20 left-0 right-0 z-40 px-4 pb-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex gap-3 items-end">
             <div className="flex-1 relative">
@@ -222,12 +222,12 @@ export default function ChatPage() {
                   onKeyPress={handleKeyPress}
                   onKeyDown={handleKeyDown}
                   placeholder="Опиши что ты съел..."
-                  className="w-full h-full px-6 py-4 pr-20 bg-transparent resize-none focus:outline-none text-black placeholder-gray-500 font-medium text-base leading-relaxed"
+                  className="w-full h-full px-6 py-3 pr-20 bg-transparent resize-none focus:outline-none text-black placeholder-gray-500 font-medium text-base leading-relaxed"
                   rows={1}
                   style={{ 
-                    height: '56px',
-                    minHeight: '56px',
-                    maxHeight: '120px'
+                    height: '45px',
+                    minHeight: '45px',
+                    maxHeight: '96px'
                   }}
                   disabled={isLoading}
                 />
@@ -237,14 +237,14 @@ export default function ChatPage() {
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputText.trim() || isLoading}
-                  className="absolute right-2 top-2 h-12 w-12 bg-[#f8cf5d] hover:shadow-lg hover:shadow-[#f8cf5d]/30 text-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f8cf5d]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center group"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-[45px] w-[45px] bg-[#f8cf5d] hover:shadow-lg hover:shadow-[#f8cf5d]/30 text-black rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f8cf5d]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center group"
                   title="Отправить сообщение"
                 >
                   {isLoading ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
                   ) : (
                     <svg 
-                      className="w-5 h-5 transform group-hover:scale-110 transition-transform duration-200" 
+                      className="w-4 h-4 transform group-hover:scale-110 transition-transform duration-200" 
                       fill="none" 
                       stroke="currentColor" 
                       viewBox="0 0 24 24"
