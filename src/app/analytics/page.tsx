@@ -6,9 +6,7 @@ export default function AnalyticsPage() {
   const userId = '550e8400-e29b-41d4-a716-446655440000';
 
   return (
-    <PageLayout 
-      title="Аналитика питания"
-    >
+    <PageLayout>
       <Analytics userId={userId} />
     </PageLayout>
   );

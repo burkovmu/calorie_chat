@@ -3,9 +3,7 @@ import PageLayout from '@/components/PageLayout';
 
 export default function SettingsPage() {
   return (
-    <PageLayout 
-      title="Настройки"
-    >
+    <PageLayout>
       <Settings />
     </PageLayout>
   );
