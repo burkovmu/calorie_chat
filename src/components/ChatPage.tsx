@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import MessageList from './MessageList';
 import MealCard from './MealCard';
 import { useChatStore } from '../lib/store';
@@ -13,6 +13,7 @@ export default function ChatPage() {
   const [inputText, setInputText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const { getUserId, getUserName, shareMeal, showAlert, isTelegramApp } = useTelegram();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Добавляем приветственное сообщение при первом загрузке
   useEffect(() => {
@@ -41,6 +42,12 @@ export default function ChatPage() {
 
     addMessage(userMessage);
     setInputText('');
+    
+    // Сбрасываем размер поля ввода к начальному
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '45px';
+    }
+    
     setLoading(true);
     setError(null);
 
@@ -172,6 +179,11 @@ export default function ChatPage() {
     const textarea = e.target;
     textarea.style.height = 'auto';
     textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+    
+    // Если поле пустое, сбрасываем к начальному размеру
+    if (!e.target.value.trim()) {
+      textarea.style.height = '45px';
+    }
   };
 
   return (
@@ -217,6 +229,7 @@ export default function ChatPage() {
             <div className="flex-1 relative">
               <div className="relative bg-white rounded-2xl border-2 border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 focus-within:border-[#f8cf5d] focus-within:shadow-2xl focus-within:shadow-[#f8cf5d]/30">
                 <textarea
+                  ref={textareaRef}
                   value={inputText}
                   onChange={handleInputChange}
                   onKeyPress={handleKeyPress}
